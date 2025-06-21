@@ -1,0 +1,4 @@
+# Ignora i file SQLite e tutte le cartelle di memoria
+*.db
+memoria/chat/
+memoria/progetti/
