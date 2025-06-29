@@ -180,3 +180,34 @@ router.get('/debug-pendenti', async (req, res) => {
 });
 
 module.exports = router;
+
+// 📄 Aggiungi questo endpoint al memoria-router.js del ROG
+// (Posizionalo insieme agli altri endpoint)
+
+// 🎯 Endpoint per ricevere messaggi da Render (SOLO ROG)
+router.post('/save-message', async (req, res) => {
+  try {
+    const { chatId, message } = req.body;
+    
+    // Validazione completa
+    if (!chatId || !message || !message.mittente || !message.contenuto || !message.timestamp) {
+      console.error('❌ ROG: Dati incompleti ricevuti:', req.body);
+      return res.status(400).send('❌ Dati incompleti per salvataggio ROG');
+    }
+
+    // Salva il messaggio usando la logica esistente del ROG
+    appendMessage("chat", chatId, message);
+    
+    console.log(`✅ ROG: Messaggio salvato per chat "${chatId}" da ${message.mittente}`);
+    res.send('✅ Messaggio salvato su ROG');
+    
+  } catch (err) {
+    console.error('❌ ROG: Errore salvataggio messaggio:', err);
+    res.status(500).send('❌ Errore salvataggio su ROG');
+  }
+});
+
+// 🔍 Endpoint di debug per verificare che ROG sia raggiungibile
+router.get('/ping', (req, res) => {
+  res.send('🏠 ROG Server attivo');
+});
