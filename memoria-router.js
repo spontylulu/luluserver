@@ -6,14 +6,14 @@ const router = express.Router();
 const path = require('path');
 const fs = require('fs');
 const fetch = require('node-fetch');
-const { salvaMessaggio } = require('./memoria/db');
+const { salvaMessaggio, getMessaggiPendenti } = require('./memoria/db');
 const { loadMessages, appendMessage, getIndex } = require('./memoria-db');
 
 // 🆕 Crea una nuova chat vuota
 router.post('/chat-create/:chatName', async (req, res) => {
   try {
     const chatName = req.params.chatName;
-    
+
     if (!chatName || chatName.trim() === '') {
       return res.status(400).send('❌ Nome chat non valido');
     }
@@ -25,7 +25,7 @@ router.post('/chat-create/:chatName', async (req, res) => {
     };
 
     appendMessage("chat", chatName, initMessage);
-    
+
     res.send(`✅ Chat "${chatName}" creata con successo`);
   } catch (err) {
     console.error(`❌ Errore creazione chat ${req.params.chatName}:`, err);
@@ -66,7 +66,7 @@ router.post('/progetto-create/:projectName/:chatName', async (req, res) => {
   try {
     const projectName = req.params.projectName;
     const chatName = req.params.chatName;
-    
+
     if (!projectName || !chatName) {
       return res.status(400).send('❌ Nome progetto o chat non valido');
     }
@@ -78,7 +78,7 @@ router.post('/progetto-create/:projectName/:chatName', async (req, res) => {
     };
 
     appendMessage("progetto", projectName, initMessage, chatName);
-    
+
     res.send(`✅ Progetto "${projectName}" con chat "${chatName}" creato`);
   } catch (err) {
     console.error(`❌ Errore creazione progetto ${req.params.projectName}:`, err);
@@ -166,6 +166,16 @@ router.post('/save-message', async (req, res) => {
       console.error('❌ Errore salvataggio SQLite:', dbErr);
       res.status(500).send('❌ Errore salvataggio provvisorio');
     }
+  }
+});
+
+// 🛠️ Endpoint temporaneo di debug per vedere messaggi pendenti
+router.get('/debug-pendenti', async (req, res) => {
+  try {
+    const pendenti = await getMessaggiPendenti();
+    res.send(pendenti);
+  } catch (err) {
+    res.status(500).send('❌ Errore lettura DB SQLite');
   }
 });
 
