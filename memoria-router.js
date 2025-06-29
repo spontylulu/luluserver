@@ -5,6 +5,8 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
+const fetch = require('node-fetch');
+const { salvaMessaggio } = require('./memoria/db');
 const { loadMessages, appendMessage, getIndex } = require('./memoria-db');
 
 // 🆕 Crea una nuova chat vuota
@@ -131,6 +133,39 @@ router.get('/progetto-index', (req, res) => {
   } catch (err) {
     console.error("❌ Errore lettura indice progetti:", err);
     res.status(500).send('❌ Errore lettura indice progetti');
+  }
+});
+
+// 🌐 Nuovo endpoint per salvataggio dinamico da Flutter
+router.post('/save-message', async (req, res) => {
+  const { chatId, message } = req.body;
+
+  if (!chatId || !message || !message.mittente || !message.contenuto || !message.timestamp) {
+    return res.status(400).send('❌ Dati incompleti');
+  }
+
+  try {
+    // Prova a inoltrare subito al ROG
+    const response = await fetch(`https://lulu-ai.loca.lt/memoria/chat/${chatId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(message)
+    });
+
+    if (response.ok) {
+      return res.send('✅ Messaggio inoltrato direttamente a ROG');
+    } else {
+      throw new Error(`ROG ha risposto con status ${response.status}`);
+    }
+  } catch (err) {
+    // Se il ROG non è raggiungibile → salva in Render (SQLite)
+    try {
+      await salvaMessaggio(chatId, message);
+      res.send('📦 ROG offline – Messaggio salvato in attesa di sync');
+    } catch (dbErr) {
+      console.error('❌ Errore salvataggio SQLite:', dbErr);
+      res.status(500).send('❌ Errore salvataggio provvisorio');
+    }
   }
 });
 

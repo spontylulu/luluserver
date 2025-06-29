@@ -39,3 +39,6 @@ app.use('/memoria', memoriaRouter);
 app.listen(PORT, () => {
   console.log(`🚀 Lulu Memory Server attivo su http://localhost:${PORT}`);
 });
+
+// 🧠 Avvia il modulo di sincronizzazione con il server ROG
+require('./memoria/sync');
