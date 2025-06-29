@@ -2,3 +2,6 @@
 *.db
 memoria/chat/
 memoria/progetti/
+
+# Ignora completamente le dipendenze locali
+node_modules/

@@ -146,7 +146,7 @@ router.post('/save-message', async (req, res) => {
 
   try {
     // Prova a inoltrare subito al ROG
-    const response = await fetch(`https://lulu-ai.loca.lt/memoria/chat/${chatId}`, {
+    const response = await fetch(`https://lulu-ai.loca.lt/memoria/save-message`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(message)
